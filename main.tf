@@ -1,11 +1,11 @@
 module "azure_vm" {
   source              = "./terraform-vm-module"
-  resource_group_name = "ExistingResourceGroup"
-  vnet_name           = "ExistingVNet"
-  subnet_name         = "ExistingSubnet"
+  resource_group_name = "adewale"
+  vnet_name           = "Terraform-vnet"
+  subnet_name         = "Terraform-subnet"
   vm_count            = 1
   prefix              = "devvm"
-  vm_name             = "VigirniaVM"
+  vm_name             = "VtestVM"
   vm_size             = "Standard_D8s_v5"
   admin_username      = "adminuser"
   admin_password      = "Adminpassword123@@@#####"

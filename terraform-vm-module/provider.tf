@@ -7,9 +7,9 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name   = "ResourceGroup"
-    storage_account_name  = "storageaccount"
-    container_name        = "terraform-state"
+    resource_group_name   = "adewale"
+    storage_account_name  = "taplatazgvsaappterraform"
+    container_name        = "tf-state-files"
     key                   = "terraform.tfstate"
   }
 }
