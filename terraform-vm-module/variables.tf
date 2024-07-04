@@ -1,10 +1,15 @@
 variable "resource_group_name" {
-  description = "The name of the resource group"
+  description = "The name of the existing resource group"
   type        = string
 }
 
-variable "location" {
-  description = "The location of the resources"
+variable "vnet_name" {
+  description = "The name of the existing virtual network"
+  type        = string
+}
+
+variable "subnet_name" {
+  description = "The name of the existing subnet"
   type        = string
 }
 
@@ -13,20 +18,14 @@ variable "prefix" {
   type        = string
 }
 
-variable "vnet_address_space" {
-  description = "The address space for the virtual network"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "subnet_address_prefix" {
-  description = "The address prefix for the subnet"
-  type        = string
-  default     = "10.0.1.0/24"
+variable "vm_count" {
+  description = "The number of virtual machines to create"
+  type        = number
+  default     = 1
 }
 
 variable "vm_name" {
-  description = "The name of the virtual machine"
+  description = "The base name of the virtual machines"
   type        = string
 }
 

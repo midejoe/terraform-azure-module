@@ -1,20 +1,22 @@
 module "azure_vm" {
   source              = "./terraform-vm-module"
-  resource_group_name = "myResourceGroup"
-  location            = "East US"
-  prefix              = "vm"
-  vm_name             = "testVM"
-  vm_size             = "Standard_DS1_v2"
+  resource_group_name = "ExistingResourceGroup"
+  vnet_name           = "ExistingVNet"
+  subnet_name         = "ExistingSubnet"
+  vm_count            = 1
+  prefix              = "devvm"
+  vm_name             = "VigirniaVM"
+  vm_size             = "Standard_D8s_v5"
   admin_username      = "adminuser"
   admin_password      = "Adminpassword123@@@#####"
   os_type             = "Linux" # or "Windows"
-  image_publisher     = "Canonical"
-  image_offer         = "UbuntuServer"
-  image_sku           = "18.04-LTS"
+  image_publisher     = "RedHat"
+  image_offer         = "RHEL"
+  image_sku           = "7.9"
   image_version       = "latest"
   tags = {
     environment = "development"
-    project     = "myproject"
+    project     = "testproject"
   }
   nsg_rules = [
     {
