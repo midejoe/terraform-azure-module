@@ -1,6 +1,6 @@
 output "vm_id" {
   description = "The ID of the virtual machine"
-  value       = var.os_type == "Linux" ? azurerm_linux_virtual_machine.linux_vm.id : azurerm_windows_virtual_machine.windows_vm.id
+  value       = var.os_type == "Linux" ? azurerm_linux_virtual_machine.linux_vm[0].id : azurerm_windows_virtual_machine.windows_vm[0].id
 }
 
 output "vm_private_ip" {

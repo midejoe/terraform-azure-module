@@ -1,5 +1,5 @@
 module "azure_vm" {
-  source              = "./terraform-azure-module/terraform-vm-module"
+  source              = "./terraform-vm-module"
   resource_group_name = "myResourceGroup"
   location            = "East US"
   prefix              = "vm"
