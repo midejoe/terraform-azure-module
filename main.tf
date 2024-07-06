@@ -33,22 +33,61 @@
 #   ]
 # }
 
-module "azure_vm" {
-  source              = "./terraform-vm-module"
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.86.0"
+    }
+  }
+}
+
+# terraform {
+#   backend "azurerm" {
+#     resource_group_name  = "adewale" 
+#     storage_account_name = "taplatazgvsaappterraform"                      
+#     container_name       = "tf-state-files"              
+#     key                  = " terraform.tfstate"
+#   }
+# }
+
+# Module for using an existing resource group
+module "resource_group" {
+  source = "./terraform-vm-module/modules/resource_group"
+  name   = var.resource_group_name
+}
+
+# Module for using an existing virtual network
+module "vnet" {
+  source              = "./terraform-vm-module/modules/virtual_network"
+  resource_group_name = var.resource_group_name
+  name                = var.vnet_name
+}
+
+# Module for using an existing subnet
+module "subnet" {
+  source              = "./terraform-vm-module/modules/subnet"
   resource_group_name = var.resource_group_name
   vnet_name           = var.vnet_name
-  subnet_name         = var.subnet_name
+  name                = var.subnet_name
+}
+
+# Module for creating VMs
+module "azure_vm" {
+  source              = "./terraform-vm-module/modules/virtual_machine"
+  resource_group_name = var.resource_group_name
+  subnet_id           = module.subnet.id
   vm_count            = var.vm_count
   prefix              = var.prefix
   vm_name             = var.vm_name
   vm_size             = var.vm_size
   admin_username      = var.admin_username
   admin_password      = var.admin_password
+  tags                = var.tags
   os_type             = var.os_type
   image_publisher     = var.image_publisher
   image_offer         = var.image_offer
   image_sku           = var.image_sku
   image_version       = var.image_version
-  tags                = var.tags
   nsg_rules           = var.nsg_rules
 }
