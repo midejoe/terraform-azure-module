@@ -85,9 +85,13 @@ module "azure_vm" {
   admin_password      = var.admin_password
   tags                = var.tags
   os_type             = var.os_type
-  image_publisher     = var.image_publisher
-  image_offer         = var.image_offer
-  image_sku           = var.image_sku
-  image_version       = var.image_version
+  linux_image_publisher     = var.linux_image_publisher
+  linux_image_offer         = var.linux_image_offer
+  linux_image_sku           = var.linux_image_sku
+  linux_image_version       = var.linux_image_version
+  windows_image_publisher   = var.windows_image_publisher
+  windows_image_offer       = var.windows_image_offer
+  windows_image_sku         = var.windows_image_sku
+  windows_image_version     = var.windows_image_version
   nsg_rules           = var.nsg_rules
 }
