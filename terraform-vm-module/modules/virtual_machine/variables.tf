@@ -39,22 +39,42 @@ variable "admin_password" {
   type        = string
 }
 
-variable "image_publisher" {
+variable "linux_image_publisher" {
   description = "The image publisher"
   type        = string
 }
 
-variable "image_offer" {
+variable "linux_image_offer" {
   description = "The image offer"
   type        = string
 }
 
-variable "image_sku" {
+variable "linux_image_sku" {
   description = "The image SKU"
   type        = string
 }
 
-variable "image_version" {
+variable "linux_image_version" {
+  description = "The image version"
+  type        = string
+}
+
+variable "windows_image_publisher" {
+  description = "The image publisher"
+  type        = string
+}
+
+variable "windows_image_offer" {
+  description = "The image offer"
+  type        = string
+}
+
+variable "windows_image_sku" {
+  description = "The image SKU"
+  type        = string
+}
+
+variable "windows_image_version" {
   description = "The image version"
   type        = string
 }
