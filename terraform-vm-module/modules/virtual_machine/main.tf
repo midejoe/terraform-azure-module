@@ -139,10 +139,10 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   }
 
   source_image_reference {
-    publisher = var.image_publisher
-    offer     = var.image_offer
-    sku       = var.image_sku
-    version   = var.image_version
+    publisher = var.linux_image_publisher
+    offer     = var.linux_image_offer
+    sku       = var.linux_image_sku
+    version   = var.linux_image_version
   }
 
   computer_name                   = "${var.vm_name}-${count.index}"
@@ -167,10 +167,10 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
   }
 
   source_image_reference {
-    publisher = var.image_publisher
-    offer     = var.image_offer
-    sku       = var.image_sku
-    version   = var.image_version
+    publisher = var.windows_image_publisher
+    offer     = var.windows_image_offer
+    sku       = var.windows_image_sku
+    version   = var.windows_image_version
   }
 
   computer_name            = "${var.vm_name}-${count.index}"
