@@ -48,26 +48,45 @@ variable "os_type" {
   type        = string
 }
 
-variable "image_publisher" {
-  description = "Publisher of the virtual machine image"
+variable "linux_image_publisher" {
+  description = "cis publisher of the linux virtual machine image"
   type        = string
 }
 
-variable "image_offer" {
-  description = "Offer of the virtual machine image"
+variable "linux_image_offer" {
+  description = "cis offer of the linux virtual machine image"
   type        = string
 }
 
-variable "image_sku" {
-  description = "SKU (version) of the virtual machine image"
+variable "linux_image_sku" {
+  description = "SKU (version) of the linux virtual machine image"
   type        = string
 }
 
-variable "image_version" {
-  description = "Version of the virtual machine image"
+variable "linux_image_version" {
+  description = "cis version of the windows virtual machine image"
   type        = string
 }
 
+variable "windows_image_publisher" {
+  description = "Publisher of the windows virtual machine image"
+  type        = string
+}
+
+variable "windows_image_offer" {
+  description = "cis offer of the windows virtual machine image"
+  type        = string
+}
+
+variable "windows_image_sku" {
+  description = "SKU (version) of the windows virtual machine image"
+  type        = string
+}
+
+variable "windows_image_version" {
+  description = "cis version of the windows virtual machine image"
+  type        = string
+}
 variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
