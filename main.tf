@@ -73,10 +73,15 @@ module "subnet" {
 }
 
 # Module for creating VMs
+
+variable "azure_devops_url" {}
+variable "azure_devops_pat" {}
+variable azure_devops_pool" {}
+
 module "azure_vm" {
   source              = "./terraform-vm-module/modules/virtual_machine"
   resource_group_name = var.resource_group_name
-  subnet_id           = module.subnet.id
+  subnet_id           = var.subnet_id
   vm_count            = var.vm_count
   prefix              = var.prefix
   vm_name             = var.vm_name
@@ -95,4 +100,28 @@ module "azure_vm" {
   windows_image_sku         = var.windows_image_sku
   windows_image_version     = var.windows_image_version
   nsg_rules           = var.nsg_rules
+
+  provisioner "local-exec" {
+    command = <<EOT
+      ansible-playbook -i '${self.public_ip_address},' --extra-vars "ansible_user=${var.admin_username} ansible_password=${var.admin_password} ansible_port=5986 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore azure_devops_url=${var.azure_devops_url} azure_devops_pat=${var.azure_devops_pat} azure_devops_pool=${var.azure_devops_pool}" ../install_tools.yml
+    EOT
+    environment = {
+      ANSIBLE_HOST_KEY_CHECKING = "False"
+    }
+  }
 }
+
+resource "azurerm_virtual_machine_extension" "winrm" {
+  name                 = "enable-winrm"
+  virtual_machine_id   = module.azure_vm[0].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command \"winrm quickconfig -q; winrm set winrm/config/winrs @{MaxMemoryPerShellMB=1024}; winrm set winrm/config @{MaxTimeoutms=1800000}; winrm set winrm/config/service @{AllowUnencrypted='true'}; winrm set winrm/config/service/auth @{Basic='true'}; sc config winrm start=auto; Start-Service winrm;\""
+    }
+  SETTINGS
+}
+
+
