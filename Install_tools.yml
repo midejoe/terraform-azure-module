@@ -17,9 +17,49 @@
         name: terraform
         state: present
 
+    - name: Install Docker
+      win_chocolatey:
+        name: docker-desktop
+        state: present
+
     - name: Install Ansible
       win_chocolatey:
         name: ansible
+        state: present
+
+    - name: Install .NET Framework 4.6.2
+      win_feature:
+        name: 'NET-Framework-Features'
+        state: present
+
+    - name: Install .NET Framework 4.8
+      win_chocolatey:
+        name: netfx-4.8
+        state: present
+
+    - name: Install PowerShell 5.1
+      win_chocolatey:
+        name: powershell
+        state: present
+
+    - name: Install Visual Studio Build Tools 2017
+      win_chocolatey:
+        name: visualstudio2017buildtools
+        state: present
+
+    - name: Install MSBuild
+      win_chocolatey:
+        name: microsoft-build-tools
+        state: present
+
+    - name: Install JDK 8
+      win_chocolatey:
+        name: jdk8
+        state: present
+
+    - name: Install Node.js LTS
+      win_chocolatey:
+        name: nodejs-lts
         state: present
 
     - name: Create agent directory
