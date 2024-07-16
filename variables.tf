@@ -112,16 +112,16 @@ variable "nsg_rules" {
   default = []
 }
 
-variable "identity" {
-  type = object({
-    type         = string
-    identity_ids = optional(set(string))
-  })
-  default = {
-    type         = "SystemAssigned"
-    identity_ids = null
-  }
-}
-variable "azure_devops_url" {}
-variable "azure_devops_pat" {}
-variable azure_devops_pool" {}
+# variable "identity" {
+#   type = object({
+#     type         = string
+#     identity_ids = optional(set(string))
+#   })
+#   default = {
+#     type         = "SystemAssigned"
+#     identity_ids = null
+#   }
+# }
+# variable "azure_devops_url" {}
+# variable "azure_devops_pat" {}
+# variable "azure_devops_pool" {}

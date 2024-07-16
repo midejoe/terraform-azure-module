@@ -153,7 +153,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     version   = var.linux_image_version
   }
 
-  identity = var.identity
+  #identity = var.identity
 
   computer_name                   = "${var.vm_name}-${count.index}"
   disable_password_authentication = false
@@ -165,17 +165,17 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
 ######## Linux VM extension for Entra ID ############
 #####################################################
 
-resource "azurerm_virtual_machine_extension" "linux_aad_login" {
-  count               = var.os_type == "Linux" ? var.vm_count : 0
-  name                = "AADLoginForLinux"
-  virtual_machine_id  = azurerm_linux_virtual_machine.linux_vm[count.index].id
-  publisher           = "Microsoft.Azure.ActiveDirectory"
-  type                = "AADLoginForLinux"
-  type_handler_version = "1.0"
-  auto_upgrade_minor_version = true
+# resource "azurerm_virtual_machine_extension" "linux_aad_login" {
+#   count               = var.os_type == "Linux" ? var.vm_count : 0
+#   name                = "AADLoginForLinux"
+#   virtual_machine_id  = azurerm_linux_virtual_machine.linux_vm[count.index].id
+#   publisher           = "Microsoft.Azure.ActiveDirectory"
+#   type                = "AADLoginForLinux"
+#   type_handler_version = "1.0"
+#   auto_upgrade_minor_version = true
 
-  depends_on          = [azurerm_windows_virtual_machine.linux_vm]
-}
+#   depends_on          = [azurerm_windows_virtual_machine.linux_vm]
+# }
 
 
 
@@ -209,6 +209,61 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
   enable_automatic_updates = true
 
   tags = var.tags
+
+}
+
+resource "null_resource" "wait_for_winrm" {
+  count = var.os_type == "Windows" ? var.vm_count : 0
+
+  depends_on = [azurerm_windows_virtual_machine.windows_vm, azurerm_virtual_machine_extension.winrm]
+
+  provisioner "remote-exec" {
+    inline = [
+      "sleep 60", # Adjust sleep duration as needed
+      "echo WinRM is configured and VM is ready"
+    ]
+
+    connection {
+      type        = "winrm"
+      user        = var.admin_username
+      password    = var.admin_password
+      host        = azurerm_network_interface.nic[count.index].private_ip_address
+      https       = true
+      port        = 5986
+      insecure    = true
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "powershell.exe -File ${path.module}/../../install_ansible_on_vm.ps1",
+      "ansible-playbook -i 'localhost,' --extra-vars 'ansible_user=${var.admin_username} ansible_password=${var.admin_password} ansible_port=5986 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore' ${path.module}/../../install_tools.yml"
+    ]
+
+    connection {
+      type        = "winrm"
+      user        = var.admin_username
+      password    = var.admin_password
+      host        = azurerm_network_interface.nic[count.index].private_ip_address
+      https       = true
+      port        = 5986
+      insecure    = true
+    }
+  }
+}
+
+resource "azurerm_virtual_machine_extension" "winrm" {
+  count                = var.os_type == "Windows" ? var.vm_count : 0
+  name                 = "enable-winrm-${count.index}"
+  virtual_machine_id   = azurerm_windows_virtual_machine.windows_vm[count.index].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command \"winrm quickconfig -q; winrm set winrm/config/winrs @{MaxMemoryPerShellMB=1024}; winrm set winrm/config @{MaxTimeoutms=1800000}; winrm set winrm/config/service @{AllowUnencrypted='true'}; winrm set winrm/config/service/auth @{Basic='true'}; sc config winrm start=auto; Start-Service winrm;\""
+    }
+  SETTINGS
 }
 
 
@@ -216,47 +271,47 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
 ######## Windows VM extension for Entra ID ############
 #####################################################
 
-resource "azurerm_virtual_machine_extension" "windows_aad_login" {
-  count               = var.os_type == "Windows" ? var.vm_count : 0
-  name                = "AADLoginForWindows"
-  virtual_machine_id  = azurerm_windows_virtual_machine.windows_vm[count.index].id
-  publisher           = "Microsoft.Azure.ActiveDirectory"
-  type                = "AADLoginForWindows"
-  type_handler_version = "1.0"
-  auto_upgrade_minor_version = true
+# resource "azurerm_virtual_machine_extension" "windows_aad_login" {
+#   count               = var.os_type == "Windows" ? var.vm_count : 0
+#   name                = "AADLoginForWindows"
+#   virtual_machine_id  = azurerm_windows_virtual_machine.windows_vm[count.index].id
+#   publisher           = "Microsoft.Azure.ActiveDirectory"
+#   type                = "AADLoginForWindows"
+#   type_handler_version = "1.0"
+#   auto_upgrade_minor_version = true
 
-  depends_on          = [azurerm_windows_virtual_machine.windows_vm]
-}
-
-
-
-#######################################################
-########## Role assignments for VMs ###################
-#######################################################
+#   depends_on          = [azurerm_windows_virtual_machine.windows_vm]
+# }
 
 
-resource "azurerm_role_assignment" "vm_aad_role_assignment" {
-  count = var.vm_count
 
-  scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
-  role_definition_name = "Virtual Machine Administrator Login"
-  principal_id         = var.aad_principal_id
+# #######################################################
+# ########## Role assignments for VMs ###################
+# #######################################################
 
-  depends_on = [
-    azurerm_linux_virtual_machine.linux_vm,
-    azurerm_windows_virtual_machine.windows_vm
-  ]
-}
 
-resource "azurerm_role_assignment" "vm_aad_login_role_assignment" {
-  count = var.vm_count
+# resource "azurerm_role_assignment" "vm_aad_role_assignment" {
+#   count = var.vm_count
 
-  scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
-  role_definition_name = "Virtual Machine User Login"
-  principal_id         = var.aad_principal_id
+#   scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
+#   role_definition_name = "Virtual Machine Administrator Login"
+#   principal_id         = var.aad_principal_id
 
-  depends_on = [
-    azurerm_linux_virtual_machine.linux_vm,
-    azurerm_windows_virtual_machine.windows_vm
-  ]
-}
+#   depends_on = [
+#     azurerm_linux_virtual_machine.linux_vm,
+#     azurerm_windows_virtual_machine.windows_vm
+#   ]
+# }
+
+# resource "azurerm_role_assignment" "vm_aad_login_role_assignment" {
+#   count = var.vm_count
+
+#   scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
+#   role_definition_name = "Virtual Machine User Login"
+#   principal_id         = var.aad_principal_id
+
+#   depends_on = [
+#     azurerm_linux_virtual_machine.linux_vm,
+#     azurerm_windows_virtual_machine.windows_vm
+#   ]
+# }

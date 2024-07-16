@@ -104,18 +104,22 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "identity" {
-  type = object({
-    type         = string
-    identity_ids = optional(set(string))
-  })
-  default = {
-    type         = "SystemAssigned"
-    identity_ids = null
-  }
-}
+# variable "identity" {
+#   type = object({
+#     type         = string
+#     identity_ids = optional(set(string))
+#   })
+#   default = {
+#     type         = "SystemAssigned"
+#     identity_ids = null
+#   }
+# }
 
-variable "aad_principal_id" {
-  description = "Azure AD principal ID to assign roles to"
-  type        = string
-}
+# variable "aad_principal_id" {
+#   description = "Azure AD principal ID to assign roles to"
+#   type        = string
+# }
+
+# variable "azure_devops_url" {}
+# variable "azure_devops_pat" {}
+# variable "azure_devops_pool" {}
