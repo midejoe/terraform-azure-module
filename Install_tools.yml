@@ -1,0 +1,58 @@
+---
+- name: Install tools on Windows VM
+  hosts: all
+  tasks:
+    - name: Install Chocolatey
+      win_chocolatey:
+        name: chocolatey
+        state: present
+
+    - name: Install Git
+      win_chocolatey:
+        name: git
+        state: present
+
+    - name: Install Terraform
+      win_chocolatey:
+        name: terraform
+        state: present
+
+    - name: Install Ansible
+      win_chocolatey:
+        name: ansible
+        state: present
+
+    - name: Create agent directory
+      win_file:
+        path: C:\agent
+        state: directory
+
+    - name: Download Azure DevOps agent
+      win_get_url:
+        url: https://vstsagentpackage.azureedge.net/agent/2.196.1/vsts-agent-win-x64-2.196.1.zip
+        dest: C:\agent\agent.zip
+
+    - name: Unzip Azure DevOps agent
+      win_unzip:
+        src: C:\agent\agent.zip
+        dest: C:\agent
+
+    - name: Configure Azure DevOps agent
+      win_shell: |
+        cd C:\agent
+        .\config.cmd --unattended --url {{ azure_devops_url }} --auth pat --token {{ azure_devops_pat }} --pool {{ azure_devops_pool }} --agent {{ inventory_hostname }}
+      args:
+        executable: cmd
+
+    - name: Install Azure DevOps agent service
+      win_shell: |
+        cd C:\agent
+        .\svcinstall.cmd
+      args:
+        executable: cmd
+
+    - name: Start Azure DevOps agent service
+      win_service:
+        name: vstsagent.{{ azure_devops_pool }}.{{ inventory_hostname }}
+        start_mode: auto
+        state: started
