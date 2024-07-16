@@ -172,6 +172,7 @@ resource "azurerm_virtual_machine_extension" "linux_aad_login" {
   publisher           = "Microsoft.Azure.ActiveDirectory"
   type                = "AADLoginForLinux"
   type_handler_version = "1.0"
+  auto_upgrade_minor_version = true
 
   depends_on          = [azurerm_windows_virtual_machine.linux_vm]
 }
@@ -222,6 +223,7 @@ resource "azurerm_virtual_machine_extension" "windows_aad_login" {
   publisher           = "Microsoft.Azure.ActiveDirectory"
   type                = "AADLoginForWindows"
   type_handler_version = "1.0"
+  auto_upgrade_minor_version = true
 
   depends_on          = [azurerm_windows_virtual_machine.windows_vm]
 }
