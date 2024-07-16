@@ -73,11 +73,6 @@ module "subnet" {
 }
 
 # Module for creating VMs
-
-variable "azure_devops_url" {}
-variable "azure_devops_pat" {}
-variable azure_devops_pool" {}
-
 module "azure_vm" {
   source              = "./terraform-vm-module/modules/virtual_machine"
   resource_group_name = var.resource_group_name
