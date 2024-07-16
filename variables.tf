@@ -111,3 +111,14 @@ variable "nsg_rules" {
   }))
   default = []
 }
+
+variable "identity" {
+  type = object({
+    type         = string
+    identity_ids = optional(set(string))
+  })
+  default = {
+    type         = "SystemAssigned"
+    identity_ids = null
+  }
+}

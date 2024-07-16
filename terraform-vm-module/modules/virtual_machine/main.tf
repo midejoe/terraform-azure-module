@@ -88,6 +88,10 @@
 #   tags = var.tags
 # }
 
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group_name
+}
+
 
 resource "azurerm_network_interface" "nic" {
   count               = var.vm_count
@@ -123,6 +127,10 @@ resource "azurerm_network_security_rule" "nsg_rule" {
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
+#########################################################
+############## Linux VM ###############################
+#########################################################
+
 resource "azurerm_linux_virtual_machine" "linux_vm" {
   count                 = var.os_type == "Linux" ? var.vm_count : 0
   name                  = "${var.vm_name}-${count.index}"
@@ -145,11 +153,34 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
     version   = var.linux_image_version
   }
 
+  identity = var.identity
+
   computer_name                   = "${var.vm_name}-${count.index}"
   disable_password_authentication = false
 
   tags = var.tags
 }
+
+#####################################################
+######## Linux VM extension for Entra ID ############
+#####################################################
+
+resource "azurerm_virtual_machine_extension" "linux_aad_login" {
+  count               = var.os_type == "Linux" ? var.vm_count : 0
+  name                = "AADLoginForLinux"
+  virtual_machine_id  = azurerm_linux_virtual_machine.linux_vm[count.index].id
+  publisher           = "Microsoft.Azure.ActiveDirectory"
+  type                = "AADLoginForLinux"
+  type_handler_version = "1.0"
+
+  depends_on          = [azurerm_windows_virtual_machine.linux_vm]
+}
+
+
+
+#########################################################
+############## Windows VM ###############################
+#########################################################
 
 resource "azurerm_windows_virtual_machine" "windows_vm" {
   count                 = var.os_type == "Windows" ? var.vm_count : 0
@@ -179,6 +210,51 @@ resource "azurerm_windows_virtual_machine" "windows_vm" {
   tags = var.tags
 }
 
-data "azurerm_resource_group" "rg" {
-  name = var.resource_group_name
+
+#####################################################
+######## Windows VM extension for Entra ID ############
+#####################################################
+
+resource "azurerm_virtual_machine_extension" "windows_aad_login" {
+  count               = var.os_type == "Windows" ? var.vm_count : 0
+  name                = "AADLoginForWindows"
+  virtual_machine_id  = azurerm_windows_virtual_machine.windows_vm[count.index].id
+  publisher           = "Microsoft.Azure.ActiveDirectory"
+  type                = "AADLoginForWindows"
+  type_handler_version = "1.0"
+
+  depends_on          = [azurerm_windows_virtual_machine.windows_vm]
+}
+
+
+
+#######################################################
+########## Role assignments for VMs ###################
+#######################################################
+
+
+resource "azurerm_role_assignment" "vm_aad_role_assignment" {
+  count = var.vm_count
+
+  scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
+  role_definition_name = "Virtual Machine Administrator Login"
+  principal_id         = var.aad_principal_id
+
+  depends_on = [
+    azurerm_linux_virtual_machine.linux_vm,
+    azurerm_windows_virtual_machine.windows_vm
+  ]
+}
+
+resource "azurerm_role_assignment" "vm_aad_login_role_assignment" {
+  count = var.vm_count
+
+  scope                = azurerm_linux_virtual_machine.linux_vm[count.index].id != "" ? azurerm_linux_virtual_machine.linux_vm[count.index].id : azurerm_windows_virtual_machine.windows_vm[count.index].id
+  role_definition_name = "Virtual Machine User Login"
+  principal_id         = var.aad_principal_id
+
+  depends_on = [
+    azurerm_linux_virtual_machine.linux_vm,
+    azurerm_windows_virtual_machine.windows_vm
+  ]
 }

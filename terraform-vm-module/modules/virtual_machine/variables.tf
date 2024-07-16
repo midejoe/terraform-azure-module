@@ -103,3 +103,19 @@ variable "tags" {
   description = "Tags for the resources"
   type        = map(string)
 }
+
+variable "identity" {
+  type = object({
+    type         = string
+    identity_ids = optional(set(string))
+  })
+  default = {
+    type         = "SystemAssigned"
+    identity_ids = null
+  }
+}
+
+variable "aad_principal_id" {
+  description = "Azure AD principal ID to assign roles to"
+  type        = string
+}

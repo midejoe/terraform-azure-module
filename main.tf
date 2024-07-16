@@ -85,6 +85,7 @@ module "azure_vm" {
   admin_password      = var.admin_password
   tags                = var.tags
   os_type             = var.os_type
+  identity            = var.identity
   linux_image_publisher     = var.linux_image_publisher
   linux_image_offer         = var.linux_image_offer
   linux_image_sku           = var.linux_image_sku
