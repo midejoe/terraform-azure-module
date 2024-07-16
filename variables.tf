@@ -122,3 +122,6 @@ variable "identity" {
     identity_ids = null
   }
 }
+variable "azure_devops_url" {}
+variable "azure_devops_pat" {}
+variable azure_devops_pool" {}
