@@ -13,6 +13,11 @@ variable "resource_group_name" {
   type        = string
 }
 
+variable "location" {
+  description = "The name of the resource group location"
+  type        = string
+}
+
 
 variable "subnet_id" {
   description = "The ID of the subnet"
@@ -58,6 +63,22 @@ variable "linux_image_version" {
   description = "The image version"
   type        = string
 }
+
+variable "sku_name" {
+  description = "The sku name- plan for cis image"
+  type        = string
+}
+
+variable "publisher_name" {
+  description = "The publisher plan for cis image"
+  type        = string
+}
+
+variable "offer_name" {
+  description = "The offer - plan for cis image"
+  type        = string
+}
+
 
 variable "windows_image_publisher" {
   description = "The image publisher"

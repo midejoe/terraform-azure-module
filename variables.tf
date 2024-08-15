@@ -3,13 +3,28 @@ variable "resource_group_name" {
   type        = string
 }
 
+variable "location" {
+  description = "The location of the resource group"
+  type        = string
+}
+
 variable "vnet_name" {
   description = "Name of the virtual network"
   type        = string
 }
 
+variable "address_space" {
+  description = "Address space for the virtual network"
+  type        = list(string)
+}
+
 variable "subnet_name" {
   description = "Name of the subnet within the virtual network"
+  type        = string
+}
+
+variable "address_prefix" {
+  description = "cidr block of subnet"
   type        = string
 }
 
@@ -47,6 +62,22 @@ variable "os_type" {
   description = "Operating system type ('Linux' or 'Windows')"
   type        = string
 }
+
+variable "sku_name" {
+  description = "The sku name- plan for cis image"
+  type        = string
+}
+
+variable "publisher_name" {
+  description = "The publisher plan for cis image"
+  type        = string
+}
+
+variable "offer_name" {
+  description = "The offer - plan for cis image"
+  type        = string
+}
+
 
 variable "linux_image_publisher" {
   description = "cis publisher of the linux virtual machine image"

@@ -53,15 +53,19 @@ terraform {
 
 # Module for using an existing resource group
 module "resource_group" {
-  source = "./terraform-vm-module/modules/resource_group"
-  name   = var.resource_group_name
+  source              = "./terraform-vm-module/modules/resource_group"
+  resource_group_name = var.resource_group_name
+  location            = var.location
 }
 
 # Module for using an existing virtual network
 module "vnet" {
   source              = "./terraform-vm-module/modules/virtual_network"
   resource_group_name = var.resource_group_name
-  name                = var.vnet_name
+  location            = var.location
+  vnet_name           = var.vnet_name
+  address_space       = var.address_space
+  depends_on          = [module.resource_group]
 }
 
 # Module for using an existing subnet
@@ -69,13 +73,16 @@ module "subnet" {
   source              = "./terraform-vm-module/modules/subnet"
   resource_group_name = var.resource_group_name
   vnet_name           = var.vnet_name
-  name                = var.subnet_name
+  subnet_name         = var.subnet_name
+  address_prefix      = var.address_prefix
+  depends_on          = [module.resource_group, module.vnet]
 }
 
 # Module for creating VMs
 module "azure_vm" {
   source              = "./terraform-vm-module/modules/virtual_machine"
   resource_group_name = var.resource_group_name
+  location            = var.location
   subnet_id           = module.subnet.id
   vm_count            = var.vm_count
   prefix              = var.prefix
@@ -85,16 +92,21 @@ module "azure_vm" {
   admin_password      = var.admin_password
   tags                = var.tags
   os_type             = var.os_type
+  sku_name            = var.sku_name
+  publisher_name      = var.publisher_name
+  offer_name          = var.offer_name
   #identity            = var.identity
-  linux_image_publisher     = var.linux_image_publisher
-  linux_image_offer         = var.linux_image_offer
-  linux_image_sku           = var.linux_image_sku
-  linux_image_version       = var.linux_image_version
-  windows_image_publisher   = var.windows_image_publisher
-  windows_image_offer       = var.windows_image_offer
-  windows_image_sku         = var.windows_image_sku
-  windows_image_version     = var.windows_image_version
-  nsg_rules           = var.nsg_rules
+  linux_image_publisher   = var.linux_image_publisher
+  linux_image_offer       = var.linux_image_offer
+  linux_image_sku         = var.linux_image_sku
+  linux_image_version     = var.linux_image_version
+  windows_image_publisher = var.windows_image_publisher
+  windows_image_offer     = var.windows_image_offer
+  windows_image_sku       = var.windows_image_sku
+  windows_image_version   = var.windows_image_version
+  nsg_rules               = var.nsg_rules
+
+  depends_on = [module.resource_group, module.subnet]
 }
 
 

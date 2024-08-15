@@ -10,7 +10,12 @@ variable "vnet_name" {
   type        = string
 }
 
-variable "name" {
+variable "subnet_name" {
   description = "The name of the existing subnet"
+  type        = string
+}
+
+variable "address_prefix" {
+  description = "cidr block of subnet"
   type        = string
 }

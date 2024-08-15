@@ -2,5 +2,5 @@
 
 output "id" {
   description = "The ID of the existing subnet"
-  value       = data.azurerm_subnet.subnet.id
+  value       = azurerm_subnet.subnet.id
 }
